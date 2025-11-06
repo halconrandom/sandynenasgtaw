@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sandy Perras - Conexiones Cerca de Ti</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0a0a0a;
+        min-height: 100vh;
+        position: relative;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 0, 150, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(138, 43, 226, 0.1) 0%,
+            transparent 50%
+          );
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        padding: 20px;
+      }
+      header {
+        text-align: center;
+        padding: 60px 20px 40px;
+        margin-bottom: 40px;
+        position: relative;
+      }
+
+      h1 {
+        font-size: 4.5em;
+        background: linear-gradient(135deg, #ff0080, #ff8c00, #ff0080);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradient 3s ease infinite;
+        margin-bottom: 15px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+      }
+      @keyframes gradient {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+      .tagline {
+        color: #fff;
+        font-size: 1.4em;
+        margin-top: 10px;
+        font-weight: 300;
+        letter-spacing: 1px;
+      }
+      .location-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        color: #fff;
+        padding: 12px 30px;
+        border-radius: 30px;
+        margin-top: 20px;
+        font-weight: 600;
+        font-size: 1.1em;
+        box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+      }
+
+      .filters {
+        background: rgba(20, 20, 20, 0.8);
+        padding: 25px;
+        border-radius: 20px;
+        margin-bottom: 40px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .filter-btn {
+        padding: 12px 28px;
+        border: 2px solid rgba(255, 0, 128, 0.5);
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 600;
+        font-size: 0.95em;
+      }
+      .filter-btn:hover {
+        background: rgba(255, 0, 128, 0.2);
+        border-color: #ff0080;
+        transform: translateY(-2px);
+      }
+      .filter-btn.active {
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        border-color: transparent;
+        box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+      }
+
+      .profiles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+      }
+      .profile-card {
+        background: rgba(20, 20, 20, 0.9);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+      }
+      .profile-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(255, 0, 128, 0.3);
+        border-color: rgba(255, 0, 128, 0.5);
+      }
+
+      /* ——— IMAGEN GRANDE EN LAS CARDS ——— */
+      .profile-image {
+        width: 100%;
+        height: 320px; /* tamaño visual de la foto en la card */
+        border-radius: 20px 20px 0 0;
+        overflow: hidden;
+        background: #111; /* fallback */
+        position: relative;
+      }
+      .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .profile-image::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 50%;
+        background: linear-gradient(to top, rgba(20, 20, 20, 0.9), transparent);
+      }
+
+      .online-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .online-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+        position: relative;
+      }
+      .online-dot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+        animation: online-ping 2s ease-out infinite;
+      }
+      @keyframes online-ping {
+        0% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+        }
+        70% {
+          box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
+      }
+
+      .profile-info {
+        padding: 25px;
+      }
+      .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      .profile-name {
+        font-size: 1.9em;
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+      .profile-age {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.85em;
+        color: #fff;
+        font-weight: 600;
+      }
+      .profile-location {
+        color: #ff0080;
+        font-weight: 600;
+        font-size: 0.95em;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .distance {
+        color: #999;
+        font-size: 0.9em;
+        margin-bottom: 15px;
+      }
+      .profile-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      .tag {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        color: #ccc;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: 0.3s;
+      }
+      .tag:hover {
+        background: rgba(255, 0, 128, 0.2);
+        border-color: rgba(255, 0, 128, 0.5);
+        color: #fff;
+      }
+
+      .chat-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        color: #fff;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 1.05em;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(255, 0, 128, 0.3);
+      }
+      .chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 0, 128, 0.5);
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 3em;
+        }
+        .profiles-grid {
+          grid-template-columns: 1fr;
+        }
+        .profile-image {
+          height: 280px;
+        }
+      }
+
+      /* ——— PROMO MODAL ——— */
+      .promo-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(3px);
+        display: none;
+        z-index: 9999;
+      }
+      .promo-modal {
+        position: fixed;
+        max-width: 420px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(0.98);
+        width: min(520px, 92vw);
+        background: radial-gradient(
+            120% 120% at 0% 0%,
+            rgba(255, 0, 128, 0.06) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            120% 120% at 100% 100%,
+            rgba(138, 43, 226, 0.06) 0%,
+            transparent 40%
+          ),
+          rgba(18, 18, 18, 0.94);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        color: #fff;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 10000;
+        text-align: center;
+      }
+      .promo-modal.show {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        pointer-events: auto;
+      }
+      .promo-overlay.show {
+        display: block;
+      }
+
+      .promo-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        cursor: pointer;
+      }
+      .promo-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        box-shadow: 0 6px 20px rgba(255, 0, 128, 0.35);
+      }
+      .promo-title {
+        margin: 14px 0 10px;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+      }
+      .promo-text {
+        color: #eaeaea;
+        line-height: 1.45;
+        font-size: 0.98rem;
+        max-width: 320px;
+        margin: 0 auto;
+      }
+
+      .promo-actions {
+        margin-top: 18px;
+      }
+      .promo-cta {
+        width: 100%;
+        padding: 12px 14px;
+        border: 0;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        color: #fff;
+        letter-spacing: 0.3px;
+        box-shadow: 0 8px 24px rgba(255, 0, 128, 0.35);
+      }
+
+      /* ——— Carrusel ——— */
+      .promo-carousel {
+        margin-top: 16px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        padding: 8px 0;
+      }
+      .promo-track {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 100%;
+        transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+      }
+      .promo-slide {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 20px;
+      }
+      .promo-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #222;
+        display: grid;
+        place-items: center;
+      }
+      .promo-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 14px;
+        display: block;
+      }
+      .promo-info {
+        color: #fff;
+        text-align: left;
+      }
+      .promo-name {
+        font-weight: 800;
+        font-size: 1.05rem;
+      }
+      .promo-loc {
+        color: #ff66b2;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-top: 2px;
+      }
+      .promo-tags {
+        margin-top: 6px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .promo-chip {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: #ddd;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .promo-nav {
+        position: absolute;
+        bottom: 8px;
+        left: 0;
+        right: 0;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      .promo-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+      }
+      .promo-dot.active {
+        background: #fff;
+        transform: scale(1.25);
+      }
+
+      .promo-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        z-index: 3;
+      }
+      .promo-arrow.left {
+        left: -44px;
+      } /* afuera del carrusel en desktop */
+      .promo-arrow.right {
+        right: -44px;
+      }
+      @media (max-width: 520px) {
+        .promo-slide {
+          grid-template-columns: 56px 1fr;
+        }
+        .promo-arrow.left {
+          left: 6px;
+        } /* dentro en móviles */
+        .promo-arrow.right {
+          right: 6px;
+        }
+      }
+      /* === BILLING MODAL (Suscripción) === */
+      .billing-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(3px);
+        display: none;
+        z-index: 12000;
+      }
+      .billing-overlay.show {
+        display: block;
+      }
+
+      .billing-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.98);
+        width: min(560px, 92vw);
+        background: radial-gradient(
+            120% 120% at 0% 0%,
+            rgba(255, 0, 128, 0.06) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            120% 120% at 100% 100%,
+            rgba(138, 43, 226, 0.06) 0%,
+            transparent 40%
+          ),
+          rgba(18, 18, 18, 0.94);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        color: #fff;
+        padding: 22px;
+        z-index: 13000;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        opacity: 0;
+        pointer-events: none;
+        text-align: left;
+      }
+      .billing-modal.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .bill-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .bill-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+      }
+      .bill-close {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.07);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .bill-sub {
+        color: #e9e9e9;
+        margin-bottom: 14px;
+      }
+      .bill-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      .bill-row {
+        display: grid;
+        grid-template-columns: 150px 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+      .bill-label {
+        color: #bbb;
+        font-size: 0.9rem;
+      }
+      .bill-val {
+        font-weight: 700;
+      }
+      .bill-copy {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.07);
+        color: #fff;
+        border-radius: 8px;
+        padding: 6px 10px;
+        cursor: pointer;
+      }
+
+      .bill-input {
+        width: 160px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 10px;
+        padding: 8px 10px;
+        outline: none;
+      }
+      .bill-note {
+        color: #cfcfcf;
+        font-size: 0.9rem;
+        margin: 8px 2px 2px;
+      }
+
+      .bill-cta {
+        width: 100%;
+        margin-top: 10px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 12px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        color: #fff;
+        font-weight: 800;
+        box-shadow: 0 8px 24px rgba(255, 0, 128, 0.35);
+      }
+      /* === MODAL MEJORADO === */
+      .billing-modal.enhanced {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1);
+        max-width: 620px;
+        width: 90%;
+        border-radius: 20px;
+        background: radial-gradient(
+            circle at 0% 0%,
+            rgba(255, 0, 128, 0.15) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            circle at 100% 100%,
+            rgba(138, 43, 226, 0.15) 0%,
+            transparent 60%
+          ),
+          rgba(18, 18, 18, 0.96);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        padding: 24px 26px 30px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8),
+          0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        overflow: hidden;
+      }
+
+      .billing-modal .bill-glow {
+        position: absolute;
+        inset: -40%;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(255, 0, 128, 0.25),
+          rgba(138, 43, 226, 0.2),
+          transparent 70%
+        );
+        filter: blur(60px);
+        opacity: 0.5;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .billing-modal * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .billing-modal .bill-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+
+      .billing-modal .bill-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .billing-modal .bill-sub {
+        font-weight: 600;
+        color: #ff66b2;
+        margin-top: 4px;
+        font-size: 0.9rem;
+      }
+
+      .billing-modal .bill-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: 0.2s;
+      }
+      .billing-modal .bill-close:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .bill-banner {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+
+      .bill-offer {
+        flex: 1;
+      }
+
+      .offer-pill {
+        display: inline-block;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        padding: 4px 10px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+      }
+
+      .offer-headline {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 8px 0;
+      }
+
+      .offer-list {
+        list-style: none;
+        padding-left: 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #ddd;
+      }
+
+      .bill-visual {
+        width: 120px;
+        height: 120px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+        background-image: url("ped1.jpg");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .billing-modal .bill-payment h4 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .bill-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 14px;
+      }
+
+      .bill-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .bill-label {
+        color: #bbb;
+        font-size: 0.9rem;
+        flex: 0.4;
+      }
+
+      .bill-val {
+        flex: 1;
+        font-weight: 700;
+        color: #fff;
+        font-size: 1rem;
+      }
+
+      .bill-copy {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.07);
+        color: #fff;
+        border-radius: 8px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .bill-note {
+        color: #ccc;
+        font-size: 0.88rem;
+        text-align: center;
+        margin: 16px 0 10px;
+        line-height: 1.4;
+      }
+
+      .bill-cta {
+        width: 100%;
+        padding: 14px 18px;
+        border: none;
+        border-radius: 14px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ff0080, #8a2be2);
+        color: #fff;
+        font-size: 1rem;
+        box-shadow: 0 6px 25px rgba(255, 0, 128, 0.4);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .bill-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 0, 128, 0.6);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <h1>🌴 SANDY PERRAS 🌴</h1>
+        <p class="tagline">Las Chicas más Atrevidas del Condado</p>
+        <div class="location-badge">
+          📍 Los Santos • Sandy Shores • Paleto Bay
+        </div>
+      </header>
+
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterProfiles('todas')">
+          Todas
+        </button>
+        <button class="filter-btn" onclick="filterProfiles('online')">
+          En Línea
+        </button>
+        <button class="filter-btn" onclick="filterProfiles('los-santos')">
+          Los Santos
+        </button>
+        <button class="filter-btn" onclick="filterProfiles('sandy-shores')">
+          Sandy Shores
+        </button>
+        <button class="filter-btn" onclick="filterProfiles('paleto-bay')">
+          Paleto Bay
+        </button>
+      </div>
+
+      <div class="profiles-grid">
+        <!-- Los Santos -->
+        <div class="profile-card" data-location="los-santos">
+          <div class="profile-image" data-img="ped1.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Scarlett</div>
+              <div class="profile-age">25</div>
+            </div>
+            <div class="profile-location">📍 Vinewood Hills</div>
+            <div class="distance">1.2 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Aventurera</span
+              ><span class="tag">Fiestas VIP</span
+              ><span class="tag">Noctámbula</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Scarlett')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="los-santos">
+          <div class="profile-image" data-img="ped2.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Valentina</div>
+              <div class="profile-age">23</div>
+            </div>
+            <div class="profile-location">📍 Vespucci Beach</div>
+            <div class="distance">2.8 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Modelo</span><span class="tag">Playa</span
+              ><span class="tag">Yoga</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Valentina')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="los-santos">
+          <div class="profile-image" data-img="ped3.jpg"></div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Crystal</div>
+              <div class="profile-age">27</div>
+            </div>
+            <div class="profile-location">📍 Downtown LS</div>
+            <div class="distance">3.5 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Bailarina</span><span class="tag">Clubs</span
+              ><span class="tag">Ejecutiva</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Crystal')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="los-santos">
+          <div class="profile-image" data-img="ped4.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Madison</div>
+              <div class="profile-age">24</div>
+            </div>
+            <div class="profile-location">📍 Rockford Hills</div>
+            <div class="distance">1.8 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Millonaria</span><span class="tag">Compras</span
+              ><span class="tag">Spa</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Madison')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Sandy Shores -->
+        <div class="profile-card" data-location="sandy-shores">
+          <div class="profile-image" data-img="ped5.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Roxy</div>
+              <div class="profile-age">24</div>
+            </div>
+            <div class="profile-location">📍 Sandy Shores</div>
+            <div class="distance">0.5 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Atrevida</span><span class="tag">Carreras</span
+              ><span class="tag">Tatuajes</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Roxy')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="sandy-shores">
+          <div class="profile-image" data-img="ped6.jpg"></div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Destiny</div>
+              <div class="profile-age">23</div>
+            </div>
+            <div class="profile-location">📍 Desierto</div>
+            <div class="distance">1.2 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Salvaje</span><span class="tag">Motos</span
+              ><span class="tag">ATV</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Destiny')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="sandy-shores">
+          <div class="profile-image" data-img="ped7.jpg"></div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Luna</div>
+              <div class="profile-age">26</div>
+            </div>
+            <div class="profile-location">📍 Trailer Park</div>
+            <div class="distance">2.1 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Misteriosa</span><span class="tag">Rockera</span
+              ><span class="tag">Cerveza</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Luna')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Paleto Bay -->
+        <div class="profile-card" data-location="paleto-bay">
+          <div class="profile-image" data-img="ped8.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Phoenix</div>
+              <div class="profile-age">22</div>
+            </div>
+            <div class="profile-location">📍 Paleto Bay</div>
+            <div class="distance">4.5 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Natural</span><span class="tag">Camping</span
+              ><span class="tag">Caza</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Phoenix')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="paleto-bay">
+          <div class="profile-image" data-img="ped9.jpg"></div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Dakota</div>
+              <div class="profile-age">25</div>
+            </div>
+            <div class="profile-location">📍 Paleto Bay</div>
+            <div class="distance">5.2 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Música</span><span class="tag">Bar</span
+              ><span class="tag">Relajada</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Dakota')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="paleto-bay">
+          <div class="profile-image" data-img="ped10.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Hazel</div>
+              <div class="profile-age">28</div>
+            </div>
+            <div class="profile-location">📍 Mount Chiliad</div>
+            <div class="distance">6.8 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Aventurera</span
+              ><span class="tag">Senderismo</span
+              ><span class="tag">Outdoor</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Hazel')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Más perfiles Los Santos -->
+        <div class="profile-card" data-location="los-santos">
+          <div class="profile-image" data-img="ped11.jpg"></div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Diamond</div>
+              <div class="profile-age">26</div>
+            </div>
+            <div class="profile-location">📍 Del Perro</div>
+            <div class="distance">2.3 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Elegante</span><span class="tag">Casino</span
+              ><span class="tag">Lujo</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Diamond')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-card" data-location="los-santos">
+          <div class="profile-image" data-img="ped12.jpg">
+            <div class="online-badge" title="En línea" aria-label="En línea">
+              <span class="online-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-header">
+              <div class="profile-name">Amber</div>
+              <div class="profile-age">21</div>
+            </div>
+            <div class="profile-location">📍 Mirror Park</div>
+            <div class="distance">3.1 km de distancia</div>
+            <div class="profile-tags">
+              <span class="tag">Dulce</span><span class="tag">Arte</span
+              ><span class="tag">Café</span>
+            </div>
+            <button class="chat-btn" onclick="startChat('Amber')">
+              💬 Iniciar Chat
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function startChat(name) {
+        // Cierra el modal de oferta si estaba abierto
+        const overlay = document.getElementById("promoOverlay");
+        const modal = document.getElementById("promoModal");
+        overlay?.classList.remove("show");
+        modal?.classList.remove("show");
+
+        // Abre facturación
+        openBillingModal(name);
+      }
+
+      function filterProfiles(filter) {
+        const buttons = document.querySelectorAll(".filter-btn");
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        if (
+          typeof event !== "undefined" &&
+          event?.target?.classList?.contains("filter-btn")
+        ) {
+          event.target.classList.add("active");
+        }
+        const cards = document.querySelectorAll(".profile-card");
+        cards.forEach((card) => {
+          card.style.display = "block";
+          if (filter === "online") {
+            if (!card.querySelector(".online-badge"))
+              card.style.display = "none";
+          } else if (
+            ["los-santos", "sandy-shores", "paleto-bay"].includes(filter)
+          ) {
+            if (card.getAttribute("data-location") !== filter)
+              card.style.display = "none";
+          }
+        });
+      }
+
+      /* ——— Inserta <img> en TODAS las cards a partir de data-img ——— */
+      function hydrateProfileImages() {
+        document
+          .querySelectorAll(".profile-card .profile-image")
+          .forEach((box) => {
+            const src = box.getAttribute("data-img");
+            if (!src) return;
+            const badge = box.querySelector(".online-badge"); // conservar badge si existe
+            box.innerHTML = "";
+            box.insertAdjacentHTML(
+              "afterbegin",
+              `<img src="${src}" alt="Perfil" loading="lazy">`
+            );
+            if (badge) box.appendChild(badge);
+          });
+      }
+
+      /* ——— Carrusel toma mismas fotos/nombres/loc/tags desde las cards ——— */
+      function getFeaturedProfiles(max = 4) {
+        const all = Array.from(document.querySelectorAll(".profile-card"));
+        const online = all.filter((c) => c.querySelector(".online-badge"));
+        const pick = (online.length ? online : all).slice(0, max);
+
+        return pick.map((card) => {
+          const img =
+            card.querySelector(".profile-image img")?.getAttribute("src") ||
+            card.querySelector(".profile-image")?.getAttribute("data-img") ||
+            "";
+          const name =
+            card.querySelector(".profile-name")?.textContent?.trim() || "Chica";
+          const loc =
+            card.querySelector(".profile-location")?.textContent?.trim() || "";
+          const tags = Array.from(card.querySelectorAll(".profile-tags .tag"))
+            .slice(0, 3)
+            .map((t) => t.textContent.trim());
+          return { img, name, loc, tags };
+        });
+      }
+
+      function buildPromoCarousel() {
+        const track = document.getElementById("promoTrack");
+        const dots = document.getElementById("promoDots");
+        if (!track || !dots) return;
+
+        const girls = getFeaturedProfiles(4);
+        track.innerHTML = girls
+          .map(
+            (g) => `
+          <div class="promo-slide" data-name="${g.name}">
+            <div class="promo-avatar"><img src="${g.img}" alt="${
+              g.name
+            }" loading="lazy"></div>
+            <div class="promo-info">
+              <div class="promo-name">${g.name}</div>
+              <div class="promo-loc">${g.loc}</div>
+              <div class="promo-tags">
+                ${g.tags
+                  .map((t) => `<span class="promo-chip">${t}</span>`)
+                  .join("")}
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        dots.innerHTML = girls
+          .map(
+            (_, i) =>
+              `<button class="promo-dot${
+                i === 0 ? " active" : ""
+              }" data-i="${i}"></button>`
+          )
+          .join("");
+
+        let i = 0,
+          n = girls.length,
+          timer;
+        const prev = document.getElementById("promoPrev"),
+          next = document.getElementById("promoNext");
+        const set = (idx) => {
+          i = (idx + n) % n;
+          track.style.transform = `translateX(-${i * 100}%)`;
+          dots
+            .querySelectorAll(".promo-dot")
+            .forEach((d, k) => d.classList.toggle("active", k === i));
+        };
+        const go = (d) => set(i + d);
+        const play = () => (timer = setInterval(() => go(1), 4000));
+        const stop = () => timer && clearInterval(timer);
+
+        prev?.addEventListener("click", () => {
+          stop();
+          go(-1);
+          play();
+        });
+        next?.addEventListener("click", () => {
+          stop();
+          go(1);
+          play();
+        });
+        dots.addEventListener("click", (e) => {
+          const btn = e.target.closest(".promo-dot");
+          if (!btn) return;
+          stop();
+          set(parseInt(btn.dataset.i, 10));
+          play();
+        });
+
+        const carousel = document.getElementById("promoCarousel");
+        carousel.addEventListener("mouseenter", stop);
+        carousel.addEventListener("mouseleave", play);
+
+        set(0);
+        play();
+      }
+      /* === FACTURACIÓN / SUSCRIPCIÓN === */
+      function genRef() {
+        // Ej: SP-3F7KQ9 (aleatorio + timestamp)
+        const rnd = Math.random().toString(36).slice(2, 5).toUpperCase();
+        const ts = Date.now().toString(36).slice(-4).toUpperCase();
+        return `SP-${rnd}${ts}`;
+      }
+
+      function openBillingModal(contextName) {
+        const overlay = document.getElementById("billingOverlay");
+        const modal = document.getElementById("billingModal");
+        const refEl = document.getElementById("billRef");
+        const title = document.getElementById("billTitle");
+
+        if (contextName)
+          title.textContent = `Suscripción mensual con ${contextName}`;
+        refEl.textContent = genRef();
+
+        overlay.classList.add("show");
+        modal.classList.add("show");
+      }
+
+      function closeBillingModal() {
+        document.getElementById("billingOverlay")?.classList.remove("show");
+        document.getElementById("billingModal")?.classList.remove("show");
+      }
+
+      function wireBillingModal() {
+        document
+          .getElementById("billClose")
+          ?.addEventListener("click", closeBillingModal);
+        document
+          .getElementById("billingOverlay")
+          ?.addEventListener("click", closeBillingModal);
+
+        // Copiar datos
+        document.querySelectorAll(".bill-copy").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const selector = btn.getAttribute("data-copy");
+            const el = document.querySelector(selector);
+            if (!el) return;
+            const val = el.textContent.trim();
+            navigator.clipboard?.writeText(val);
+            btn.textContent = "Copiado";
+            setTimeout(() => (btn.textContent = "Copiar"), 1200);
+          });
+        });
+
+        // Confirmación fake de “pago”
+        document
+          .getElementById("billPaidBtn")
+          ?.addEventListener("click", () => {
+            const amount = parseFloat(
+              document.getElementById("billAmount").value || "0"
+            );
+            if (!(amount > 0)) {
+              alert("Ingresa un monto válido.");
+              return;
+            }
+            closeBillingModal();
+            alert("✅ Pago enviado para validación.\nGracias por suscribirte.");
+          });
+      }
+
+      /* ——— Modal show/hide + wiring ——— */
+      (function () {
+        const DELAY_MS = 10000; // 10s
+        const $ = (id) => document.getElementById(id);
+
+        function show() {
+          $("promoOverlay").classList.add("show");
+          $("promoModal").classList.add("show");
+        }
+        function hide() {
+          $("promoModal").classList.remove("show");
+          $("promoOverlay").classList.remove("show");
+        }
+
+        function wire() {
+          hydrateProfileImages(); // pinta fotos en grid
+          buildPromoCarousel(); // arma carrusel con esas fotos
+          wireBillingModal();
+
+          $("promoOverlay").addEventListener("click", hide);
+          $("promoClose")?.addEventListener("click", hide);
+          document.addEventListener(
+            "keydown",
+            (e) => e.key === "Escape" && hide()
+          );
+          $("promoCta")?.addEventListener("click", () => {
+            // Obtiene el nombre del slide activo para contexto
+            const activeIdx = Array.from(
+              document.querySelectorAll(".promo-dot")
+            ).findIndex((d) => d.classList.contains("active"));
+            const slides = document.querySelectorAll(
+              "#promoTrack .promo-slide"
+            );
+            const name =
+              slides[activeIdx]?.getAttribute("data-name") || "Chica destacada";
+
+            hide(); // cierra el modal de oferta
+            openBillingModal(name); // abre facturación
+          });
+
+          setTimeout(show, DELAY_MS);
+        }
+        document.readyState === "loading"
+          ? document.addEventListener("DOMContentLoaded", wire)
+          : wire();
+      })();
+    </script>
+
+    <!-- Modal de Facturación (Suscripción mejorado) -->
+    <div class="billing-overlay" id="billingOverlay"></div>
+    <div
+      class="billing-modal enhanced"
+      id="billingModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="billTitle"
+    >
+      <div class="bill-glow"></div>
+
+      <div class="bill-head">
+        <div>
+          <h2 class="bill-title" id="billTitle">
+            Suscripción mensual con Scarlett
+          </h2>
+          <p class="bill-sub">
+            🔥 ¡Promoción exclusiva 50% de descuento en tu primer mes!
+          </p>
+        </div>
+        <button class="bill-close" id="billClose" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="bill-banner">
+        <div class="bill-offer">
+          <span class="offer-pill">OFERTA LIMITADA</span>
+          <h3 class="offer-headline">Desbloquea beneficios VIP</h3>
+          <ul class="offer-list">
+            <li>💎 Acceso exclusivo a contenido privado</li>
+            <li>🎤 Rango especial en el servidor de Discord</li>
+            <li>💬 Chat premium con prioridad de respuesta</li>
+            <li>🎁 Eventos y sorteos mensuales solo para miembros</li>
+          </ul>
+        </div>
+        <div class="bill-visual"></div>
+      </div>
+
+      <div class="bill-payment">
+        <h4>Datos de pago en <strong>Cashtap</strong></h4>
+        <div class="bill-box">
+          <div class="bill-row">
+            <div class="bill-label">Destinatario</div>
+            <div class="bill-val" id="billRecipient">SandyNenasCO</div>
+            <button class="bill-copy" data-copy="#billRecipient">Copiar</button>
+          </div>
+          <div class="bill-row">
+            <div class="bill-label">Referencia</div>
+            <div class="bill-val" id="billRef">SP-XXXXXX</div>
+            <button class="bill-copy" data-copy="#billRef">Copiar</button>
+          </div>
+          <div class="bill-row">
+            <div class="bill-label">Monto (USD)</div>
+            <div class="bill-val" id="billAmount">5,000.00</div>
+            <button class="bill-copy" data-copy="#billAmount">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bill-note">
+        <p>
+          Tras realizar la transferencia, pulsa
+          <strong>“He transferido”</strong> para validar tu pago.<br />El código
+          de referencia debe coincidir.
+        </p>
+      </div>
+
+      <button class="bill-cta" id="billPaidBtn">He transferido</button>
+    </div>
+
+    <!-- Modal de promoción -->
+    <div class="promo-overlay" id="promoOverlay"></div>
+    <div
+      class="promo-modal"
+      id="promoModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="promoTitle"
+    >
+      <button class="promo-close" id="promoClose" aria-label="Cerrar">✕</button>
+      <span class="promo-badge">Oferta</span>
+      <h3 class="promo-title" id="promoTitle">No esperes…</h3>
+      <p class="promo-text">
+        Habla con una de estas hermosas nenas que están desesperadas por
+        conocerte.
+      </p>
+
+      <div
+        class="promo-carousel"
+        id="promoCarousel"
+        aria-label="Chicas destacadas"
+      >
+        <button
+          class="promo-arrow left"
+          type="button"
+          aria-label="Anterior"
+          id="promoPrev"
+        >
+          ‹
+        </button>
+        <div class="promo-track" id="promoTrack"></div>
+        <button
+          class="promo-arrow right"
+          type="button"
+          aria-label="Siguiente"
+          id="promoNext"
+        >
+          ›
+        </button>
+        <div class="promo-nav" id="promoDots"></div>
+      </div>
+
+      <div class="promo-actions">
+        <button class="promo-cta" id="promoCta">Iniciar chat ahora</button>
+      </div>
+    </div>
+  </body>
+</html>
